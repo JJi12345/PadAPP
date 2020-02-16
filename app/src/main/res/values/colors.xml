@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#004085</color>
+    <color name="colorPrimaryDark">#002057</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorDarkRed">#A4AA0202</color>
+    <color name="colorGary">#B7272727</color>
+    <color name="colorDarkBlue">#6D0F2C83</color>
+    <color name="colorDarkBlue1">#CE102A72</color>
+    <color name="colorLightGary">#AEB0B9</color>
+    <color name="colorTableLine">#606488</color>
+    <color name="blue">#132A58</color>
+    <color name="blue2">#0B1B35</color>
+    <color name="lightblue">#B43E78EC</color>
+    <color name="red_value">#042269</color>
+    <color name="orange_value">#065979</color>
+    <color name="yellow_value">#4DB3B9</color>
+    <color name="green_value">#6FF8CC</color>
+    <color name="textColorBlack">#000000</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="logoScreenBackground">#F7F7F7</color>
+    <color name="colorCursor">#cccccc</color>
+    <color name="divideLine">#A9A9A9</color>
+    <color name="textColorBlue">#1296db</color>
+    <color name="colorLoginButton">#004684</color>
+    <color name="textColorGray">#2C2C2C</color>
+</resources>

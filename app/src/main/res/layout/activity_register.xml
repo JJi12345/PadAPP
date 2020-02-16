@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_login"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/logoScreenBackground">
+
+
+    <RelativeLayout android:layout_width="350dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:layout_marginLeft="100dp"
+                    android:id="@+id/left_content"
+    >
+        <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/iv_icon"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginTop="200dp"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_logo"
+                />
+
+        <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/iv_icon"
+                android:layout_marginTop="25dp"
+                android:text="用户注册"
+                android:textColor="#000"
+                android:textSize="40sp"
+                android:typeface="monospace"/>
+
+        <View android:layout_width="5dp"
+              android:layout_height="match_parent"
+              android:background="@color/colorWhite"
+              android:layout_toRightOf="@+id/iv_icon"
+              android:layout_marginLeft="73dp"
+              android:fadingEdge="horizontal|vertical" android:fadeScrollbars="true" android:fadingEdgeLength="1dp"
+              android:layout_marginTop="100dp" android:layout_marginBottom="100dp"/>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+            android:id="@+id/rl_userId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="150dp"
+            android:layout_toRightOf="@+id/left_content"
+            android:background="@drawable/rectangle_edittext"
+            android:layout_marginRight="300dp">
+
+        <ImageView
+                android:id="@+id/iv_userId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:paddingBottom="15dp"
+                android:paddingLeft="30dp"
+                android:paddingTop="15dp"
+                android:src="@mipmap/ic_no"/>
+
+        <View
+                android:id="@+id/viewId"
+                android:layout_width="1dip"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_userId"
+                android:background="@color/colorCursor"/>
+
+        <EditText
+                android:id="@+id/et_userId"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/viewId"
+                android:background="@null"
+                android:ems="19"
+                android:hint=" 民警编号"
+                android:textColorHint="@color/colorCursor"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="24sp"/>
+
+        <ImageView
+                android:id="@+id/iv_idClear1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:src="@mipmap/ic_backspace_grey600_24dp"
+                android:visibility="invisible"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:id="@+id/rl_userName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/rl_userId"
+            android:background="@drawable/rectangle_edittext"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/left_content"
+            android:layout_marginRight="300dp"
+    >
+
+        <ImageView
+                android:id="@+id/iv_userIconName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:paddingBottom="15dp"
+                android:paddingLeft="30dp"
+                android:paddingTop="15dp"
+                android:src="@mipmap/ic_edittextuname"/>
+
+        <View
+                android:id="@+id/viewName"
+                android:layout_width="1dip"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_userIconName"
+                android:background="@color/colorCursor"/>
+
+        <EditText
+                android:id="@+id/et_userName1"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/viewName"
+                android:background="@null"
+                android:ems="19"
+                android:hint=" 用户名"
+                android:textColorHint="@color/colorCursor"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="24sp"/>
+
+        <ImageView
+                android:id="@+id/iv_unameClear1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:src="@mipmap/ic_backspace_grey600_24dp"
+                android:visibility="invisible"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:id="@+id/rl_userIdCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/rl_userName"
+            android:background="@drawable/rectangle_edittext"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/left_content"
+            android:layout_marginRight="300dp"
+    >
+
+        <ImageView
+                android:id="@+id/iv_userIdCard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:paddingBottom="15dp"
+                android:paddingLeft="30dp"
+                android:paddingTop="15dp"
+                android:src="@mipmap/ic_idcard"/>
+
+        <View
+                android:id="@+id/viewIdCard"
+                android:layout_width="1dip"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_userIdCard"
+                android:background="@color/colorCursor"/>
+
+        <EditText
+                android:id="@+id/et_userIdCard"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/viewIdCard"
+                android:background="@null"
+                android:ems="19"
+                android:hint=" 身份证号"
+                android:textColorHint="@color/colorCursor"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="24sp"/>
+
+        <ImageView
+                android:id="@+id/iv_idCardClear1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:src="@mipmap/ic_backspace_grey600_24dp"
+                android:visibility="invisible"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:id="@+id/rl_userPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/rl_userIdCard"
+            android:background="@drawable/rectangle_edittext"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/left_content"
+            android:layout_marginRight="300dp"
+    >
+
+        <ImageView
+                android:id="@+id/iv_userIconPwd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:paddingBottom="15dp"
+                android:paddingLeft="30dp"
+                android:paddingTop="15dp"
+                android:src="@mipmap/ic_edittextupwd"/>
+
+        <View
+                android:id="@+id/viewPwd"
+                android:layout_width="1dip"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_userIconPwd"
+                android:background="@color/colorCursor"/>
+
+        <EditText
+                android:id="@+id/et_password1"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/viewPwd"
+                android:background="@null"
+                android:drawablePadding="5dp"
+                android:ems="19"
+                android:hint=" 密码"
+                android:inputType="textPassword"
+                android:textColorHint="@color/colorCursor"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="24sp"/>
+
+        <ImageView
+                android:id="@+id/iv_pwdClear1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:src="@mipmap/ic_backspace_grey600_24dp"
+                android:visibility="invisible"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:id="@+id/rl_confirmPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/rl_userPassword"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/left_content"
+            android:layout_marginRight="300dp"
+            android:background="@drawable/rectangle_edittext">
+
+        <ImageView
+                android:id="@+id/iv_userIconConfirmPwd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:paddingBottom="15dp"
+                android:paddingLeft="30dp"
+                android:paddingTop="15dp"
+                android:src="@mipmap/ic_edittextupwd"/>
+
+        <View
+                android:id="@+id/viewConfirmPwd"
+                android:layout_width="1dip"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_userIconConfirmPwd"
+                android:background="@color/colorCursor"/>
+
+        <EditText
+                android:id="@+id/et_confirmPassword1"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/viewConfirmPwd"
+                android:background="@null"
+                android:drawablePadding="5dp"
+                android:ems="19"
+                android:hint=" 确认密码"
+                android:inputType="textPassword"
+                android:textColorHint="@color/colorCursor"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="24sp"/>
+
+        <ImageView
+                android:id="@+id/iv_confirmPwdClear1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:src="@mipmap/ic_backspace_grey600_24dp"
+                android:visibility="invisible"/>
+
+    </RelativeLayout>
+
+    <Button
+            android:id="@+id/btn_register"
+            android:layout_width="340dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/rl_confirmPassword"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/round_corner_bg"
+            android:layout_toRightOf="@+id/left_content"
+            android:layout_marginLeft="90dp"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="注册"
+            android:textColor="#fff"
+            android:textSize="24sp"/>
+
+</RelativeLayout>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/create_user_dialog_view"
+              android:layout_height="wrap_content"
+              android:background="@color/blue"
+              android:minWidth="200dp"
+              android:orientation="vertical"
+              android:padding="10dp"
+              android:paddingBottom="30dp"
+              android:paddingTop="30dp" android:layout_gravity="center|top" android:layout_width="600dp">
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" android:paddingLeft="10dp" android:paddingRight="10dp"
+                  android:paddingStart="10dp" android:layout_marginLeft="10dp"
+                  android:layout_marginRight="10dp" android:layout_marginTop="10dp" android:gravity="center|left">
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_margin="10dp"
+                  android:layout_height="25dp"
+                  android:textSize="18dp"
+                  android:textColor="@color/colorLightGary"
+                  android:text="时间"
+        />
+        <TextView android:layout_width="wrap_content"
+                  android:layout_margin="10dp"
+                  android:id="@+id/event_time"
+                  android:layout_height="25dp"
+                  android:textSize="18dp"
+                  android:textColor="@color/colorLightGary"
+                  android:text="0000-00-00 00:00:00"
+        />
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" android:paddingLeft="10dp" android:paddingRight="10dp"
+                  android:paddingStart="10dp" android:layout_marginLeft="10dp"
+                  android:layout_marginRight="10dp" android:layout_marginTop="10dp"
+                  android:gravity="center|left"
+    >
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_margin="10dp"
+                  android:layout_height="25dp"
+                  android:textSize="18dp"
+                  android:textColor="@color/colorLightGary"
+                  android:text="事件描述"
+        />
+        <EditText
+                android:id="@+id/event_detail"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorDarkBlue"
+                android:textColor="@color/colorLightGary"
+                android:hint="请填写事件描述"
+                android:minHeight="45dp"
+                android:textSize="18dp"/>
+
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" android:paddingLeft="10dp" android:paddingRight="10dp"
+                  android:paddingStart="10dp" android:layout_marginLeft="10dp"
+                  android:layout_marginRight="10dp" android:layout_marginTop="10dp"
+                  android:gravity="center|left"
+    >
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_margin="10dp"
+                  android:layout_height="25dp"
+                  android:textSize="18dp"
+                  android:textColor="@color/colorLightGary"
+                  android:text="风险值"
+        />
+        <TextView
+                android:id="@+id/rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorLightGary"
+                android:text="一般"
+                android:textSize="18dp"
+        />
+
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" android:paddingLeft="10dp" android:paddingRight="10dp"
+                  android:paddingStart="10dp" android:layout_marginLeft="10dp"
+                  android:layout_marginRight="10dp" android:layout_marginTop="10dp"
+                  android:gravity="center|left"
+    >
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_margin="10dp"
+                  android:layout_height="25dp"
+                  android:textSize="18dp"
+                  android:textColor="@color/colorLightGary"
+                  android:text="处理状态"
+        />
+        <TextView
+                android:id="@+id/state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorLightGary"
+                android:text="未处理"
+                android:textSize="18dp"
+        />
+        //设置一组单选框
+        <RadioGroup
+                android:id="@+id/rg_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <RadioButton android:id="@+id/set_button_done"
+                         android:layout_width="wrap_content"
+                         android:layout_height="match_parent"
+                         android:textColor="@color/colorLightGary"
+                         android:background="@color/lightblue"
+                         android:text="设为已处理"
+                         android:textSize="18dp"
+                         android:layout_marginLeft="10dp"
+                         android:layout_marginRight="10dp"/>
+
+            <RadioButton
+                    android:id="@+id/set_button_error"
+                    android:layout_width="115dp"
+                    android:layout_height="match_parent"
+                    android:textColor="@color/colorLightGary"
+                    android:background="@color/lightblue"
+                    android:text="设为误报"
+                    android:textSize="18dp"
+                    android:layout_marginLeft="10dp" android:layout_marginRight="10dp"/>
+
+        </RadioGroup>
+               
+         
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" android:paddingLeft="10dp" android:paddingRight="10dp"
+                  android:paddingStart="10dp" android:layout_marginLeft="10dp"
+                  android:layout_marginRight="10dp" android:layout_marginTop="10dp"
+                  android:gravity="center|left"
+    >
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_margin="10dp"
+                  android:layout_height="25dp"
+                  android:textSize="18dp"
+                  android:textColor="@color/colorLightGary"
+                  android:text="涉及车辆"
+        />
+        <TextView
+                android:id="@+id/car_realited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorLightGary"
+                android:text="京AWG123"
+                android:textSize="18dp"
+        />
+
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" android:paddingLeft="10dp" android:paddingRight="10dp"
+                  android:paddingStart="10dp" android:layout_marginLeft="10dp"
+                  android:layout_marginRight="10dp" android:layout_marginTop="10dp"
+                  android:gravity="center|left"
+    >
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_margin="10dp"
+                  android:layout_height="25dp"
+                  android:textSize="18dp"
+                  android:textColor="@color/colorLightGary"
+                  android:text="涉及犯人"
+        />
+        <TextView
+                android:id="@+id/criminal_name_panel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorLightGary"
+                android:text="吉古伟机"
+                android:textSize="18dp"
+        />
+
+    </LinearLayout>
+    <LinearLayout android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+                  android:layout_gravity="center" android:gravity="center">
+        <Button
+                android:id="@+id/btn_save_pop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="10dp"
+                android:text="保存" android:gravity="center" android:layout_gravity="center"/>
+        <Button
+                android:id="@+id/btn_exit_pop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="10dp"
+                android:text="取消" android:gravity="center" android:layout_gravity="center"/>
+    </LinearLayout>
+
+
+</LinearLayout>
+

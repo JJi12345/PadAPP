@@ -6,7 +6,8 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorDarkRed">#A4AA0202</color>
     <color name="colorGary">#B7272727</color>
-    <color name="colorDarkBlue">#6D0F2C83</color>
+    <color name="colorDarkBlue">#810F2C83</color>
+
     <color name="colorDarkBlue1">#CE102A72</color>
     <color name="colorLightGary">#AEB0B9</color>
     <color name="colorTableLine">#606488</color>

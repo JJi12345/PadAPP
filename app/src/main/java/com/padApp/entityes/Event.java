@@ -116,7 +116,8 @@ public class Event {
                 "state-"+this.state +"-"+
                 "detail-"+this.comment +"-"+
                 "prisonerId-"+this.prisonerId +"-"+
-                "misdeclaration-"+this.misdeclaration +"-";
+                "misdeclaration-"+this.misdeclaration +"-"+
+                "riskvalue-"+this.riskValue +"-";
     }
     public ArrayList<Event> String2Events(String string){
         ArrayList<Event> eventList = new ArrayList<>();
@@ -145,7 +146,9 @@ public class Event {
                 Pattern p7 = Pattern.compile("detail"+pattern);
                 Pattern p8 = Pattern.compile("prisonerId"+pattern);
                 Pattern p9 = Pattern.compile("misdeclaration"+pattern);
+                Pattern p10 = Pattern.compile("riskvalue"+pattern);
 
+                Matcher m10 = p10.matcher(str);
                 Matcher m9 = p9.matcher(str);
                 Matcher m8 = p8.matcher(str);
                 Matcher m7 = p7.matcher(str);
@@ -189,6 +192,10 @@ public class Event {
                 if (m9.find()){
                     String[] groups = m9.group().split("-");
                     event_.setMisdeclaration(Boolean.getBoolean(groups[1]));
+                }
+                if (m10.find()){
+                    String[] groups = m10.group().split("-");
+                    event_.setRiskValue(groups[1]);
                 }
                 eventList.add(event_);
             }

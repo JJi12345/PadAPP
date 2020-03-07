@@ -820,94 +820,89 @@
 
         </LinearLayout>
 
-
         <LinearLayout
-                android:layout_width="359dp"
-                android:layout_height="240dp"
-                android:layout_toRightOf="@+id/map"
-                android:layout_alignBottom="@+id/risk_chart"
-                android:layout_alignLeft="@+id/device_table"
-                android:gravity="top"
-                android:layout_marginBottom="0dp"
-                android:orientation="vertical">
+            android:layout_width="359dp"
+            android:layout_height="240dp"
+            android:layout_toRightOf="@+id/map"
+            android:layout_alignBottom="@+id/risk_chart"
+            android:layout_alignLeft="@+id/device_table"
+            android:gravity="top"
+            android:layout_marginBottom="0dp"
+            android:orientation="vertical">
             <TextView
-                    android:id="@+id/anomalous_table_title"
+                android:id="@+id/anomalous_table_title"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:text="异常列表"
+                android:textSize="20dp"
+                android:textColor="@color/colorLightGary"
+                android:layout_marginTop="0dp"
+            />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:background="@color/colorWhite"
+                android:stretchColumns="0,1,2,3,4"
+            >
+                <TableRow
+                    android:layout_width="317dp"
+                    android:layout_height="20dp"
+                    android:padding="1dp"
+                    android:background="@color/colorDarkBlue1">
+
+                    <TextView
+                        android:layout_width="84dp"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorDarkBlue1"
+                        android:layout_marginRight="1dp"
+                        android:gravity="center"
+                        android:text="时间" android:textColor="@color/colorLightGary"/>
+                    <TextView
+                        android:layout_width="68dp"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorDarkBlue1"
+                        android:layout_marginRight="1dp"
+                        android:gravity="center"
+                        android:text="犯人" android:textColor="@color/colorLightGary"/>
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorDarkBlue1"
+                        android:layout_marginRight="1dp"
+                        android:gravity="center"
+                        android:text="车辆" android:textColor="@color/colorLightGary"/>
+                    <TextView
+                        android:layout_width="55dp"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorDarkBlue1"
+                        android:layout_marginRight="1dp"
+                        android:gravity="center"
+                        android:text="状态" android:textColor="@color/colorLightGary"/>
+                    <TextView
+                        android:layout_width="38dp"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorDarkBlue1"
+                        android:gravity="center"
+                        android:text="风险值" android:textColor="@color/colorLightGary"/>
+
+                </TableRow>
+            </TableLayout>
+
+            <ScrollView
+                android:id="@+id/list_view"
+                android:layout_width="match_parent"
+                android:layout_height="191dp" android:background="@color/colorDarkBlue1">
+                <TableLayout
+                    android:id="@+id/anomalous_table"
+                    android:gravity="top"
+                    android:stretchColumns="0,1,2,3,4"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:text="异常列表"
-                    android:textSize="20dp"
-                    android:textColor="@color/colorLightGary"
-                    android:layout_marginTop="0dp"
-                    />
-<!--            />-->
-<!--            <com.bin.david.form.core.SmartTable-->
-<!--                    android:id="@+id/anomalous_table"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_gravity="top|left"/>-->
-<!--            <TableLayout-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="20dp"-->
-<!--                    android:background="@color/colorWhite"-->
-<!--                    android:stretchColumns="0,1,2,3,4"-->
-<!--            >-->
-<!--                <TableRow-->
-<!--                        android:layout_width="317dp"-->
-<!--                        android:layout_height="20dp"-->
-<!--                        android:padding="1dp"-->
-<!--                        android:background="@color/colorDarkBlue1">-->
+                    android:layout_height="match_parent">
+                </TableLayout>
 
-<!--                    <TextView-->
-<!--                            android:layout_width="84dp"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:background="@color/colorDarkBlue1"-->
-<!--                            android:layout_marginRight="1dp"-->
-<!--                            android:gravity="center"-->
-<!--                            android:text="时间" android:textColor="@color/colorLightGary"/>-->
-<!--                    <TextView-->
-<!--                            android:layout_width="68dp"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:background="@color/colorDarkBlue1"-->
-<!--                            android:layout_marginRight="1dp"-->
-<!--                            android:gravity="center"-->
-<!--                            android:text="犯人" android:textColor="@color/colorLightGary"/>-->
-<!--                    <TextView-->
-<!--                            android:layout_width="80dp"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:background="@color/colorDarkBlue1"-->
-<!--                            android:layout_marginRight="1dp"-->
-<!--                            android:gravity="center"-->
-<!--                            android:text="车辆" android:textColor="@color/colorLightGary"/>-->
-<!--                    <TextView-->
-<!--                            android:layout_width="55dp"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:background="@color/colorDarkBlue1"-->
-<!--                            android:layout_marginRight="1dp"-->
-<!--                            android:gravity="center"-->
-<!--                            android:text="状态" android:textColor="@color/colorLightGary"/>-->
-<!--                    <TextView-->
-<!--                            android:layout_width="38dp"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:background="@color/colorDarkBlue1"-->
-<!--                            android:gravity="center"-->
-<!--                            android:text="级别" android:textColor="@color/colorLightGary"/>-->
-
-<!--                </TableRow>-->
-<!--            </TableLayout>-->
-
-<!--            <ScrollView-->
-<!--                    android:id="@+id/list_view"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="191dp" android:background="@color/colorDarkBlue1">-->
-<!--                <TableLayout-->
-<!--                        android:id="@+id/anomalous_table"-->
-<!--                        android:gravity="top"-->
-<!--                        android:stretchColumns="0,1,2,3,4"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="match_parent">-->
-<!--                </TableLayout>-->
-
-<!--            </ScrollView>-->
+            </ScrollView>
         </LinearLayout>
+
     </RelativeLayout>
 </LinearLayout>

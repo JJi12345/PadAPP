@@ -26,7 +26,7 @@ public class OkHttpUtil {
 //    private static final String SERVER_URL = "http://10.0.3.2:8089";
 //    private static final String SERVER_URL = "http://10.108.120.33:8089";
 //    private static final String SERVER_URL = "http://10.109.246.55:8089";
-    private static final String SERVER_URL = "http://192.168.1.6:8089";
+    private static final String SERVER_URL = "http://192.168.1.8:8089";
     /**
      * 单例引用
      */

@@ -2,6 +2,7 @@ package com.padApp.activity;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -15,6 +16,8 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
@@ -57,8 +60,9 @@ import com.padApp.utils.WarnDialog;
 import com.padApp.view.DeviceStateView;
 import com.padApp.view.MyImageView;
 import com.padApp.view.RiskChartView;
-
+import com.padApp.utils.CommonUtil;
 public class MainActivity extends AppCompatActivity{
+    private TableRow tableRow ;
     private String userId = "130784";
     private String userName = "宋小玲";
     private String deviceNo = "100020003000";
@@ -102,7 +106,9 @@ public class MainActivity extends AppCompatActivity{
     private Handler riskChartHandler;
     RiskChartView mService;
     LinearLayout riskChartLayout;
-
+    private Handler eventTableHandler;
+    private CreateUserDialog createUserDialog;
+    private ArrayList<TableRow> rows = new ArrayList<>();
     private LocationService locationService;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -146,7 +152,6 @@ public class MainActivity extends AppCompatActivity{
             setCriminalInfo();
             setTask();
             setAnomalousEvents();
-
             setRiskChart();
             try {
                 init(savedInstanceState,meManager,batManager);
@@ -179,9 +184,10 @@ public class MainActivity extends AppCompatActivity{
         System.out.println("=criminal anomalous event="+mainApplication.getEvent_c());
         System.out.println("=criminal task="+mainApplication.getTask_());
         System.out.println("=criminal risk="+mainApplication.getRisk());
-        setDeviceInfo(meManager,batManager);
-        setCriminalInfoTables();
-        topInfoBar();
+//        setDeviceInfo(meManager,batManager);
+        AnomalousEventTable();
+//        setCriminalInfoTables();
+//        topInfoBar();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -237,8 +243,176 @@ public class MainActivity extends AppCompatActivity{
         },0);
     }
 
+    @SuppressLint("ResourceType")
+    private void AnomalousEventTable(){
+    /**
+     *      "id": "520",
+     *     "prisonerId": "04006312",
+     *     "prisonerName": "吉古伟机",
+     *     "createAt": 1578215783000,
+     *     "carNo": "京AWG392",
+     *     "dealState": null,
+     *     "riskValue": "88",
+     *     "misdeclaration": false,
+     *     "comment": null
+     */ int index = 0;
+
+        TableLayout table = findViewById(R.id.anomalous_table);
+        Event event_ = new Event();
+        List<Event> events = event_.String2Events(mainApplication.getEvent_c()).subList(0,10);
+        for(Event event : events){
+            index++;
+            TableRow tableRow1 = new TableRow(getApplicationContext());
+            rows.add(tableRow1);
+            switch (index){
+                case 1:
+                    tableRow1.setId(R.id.row_1);
+                    break;
+                case 2:
+                    tableRow1.setId(R.id.row_2);
+                    break;
+                case 3:
+                    tableRow1.setId(R.id.row_3);
+                    break;
+                case 4:
+                    tableRow1.setId(R.id.row_4);
+                    break;
+                case 5:
+                    tableRow1.setId(R.id.row_5);
+                    break;
+                case 6:
+                    tableRow1.setId(R.id.row_6);
+                    break;
+                case 7:
+                    tableRow1.setId(R.id.row_7);
+                    break;
+                case 8:
+                    tableRow1.setId(R.id.row_8);
+                    break;
+                case 9:
+                    tableRow1.setId(R.id.row_9);
+                    break;
+                case 10:
+                    tableRow1.setId(R.id.row_10);
+                    break;
+
+            }
+
+//            tableRow1.setText(String.valueOf("第 " + childCount + " 个view"));
+//            initAnimation(textView1, 1);
+            String time = CommonUtil.getTimeFromTimeStamp(event.getTime());
+            tableRow1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try{
+                        Message msg = Message.obtain();
+                        msg.obj = (Object) v;
+                        tableRow = (TableRow) v;
+                        eventTableHandler.sendMessage(msg);
+                    }catch (Exception e){
+                        System.out.println(e);
+                    }
+                }
+            }
+        );
+        ArrayList<String> texts = new ArrayList<>();
+        String state = event.getState();
+
+        texts.add(time);
+        texts.add(event.getPrisonerName());
+        texts.add(event.getCarNo());
+        texts.add(state);
+        texts.add(event.getRiskValue());
 
 
+        switch (state){
+            case "未处理":
+                tableRow1.setBackgroundColor(Color.parseColor("#A4AA0202"));
+                break;
+            case "已处理":
+                tableRow1.setBackgroundColor(Color.parseColor("#C8628B34"));
+                break;
+            case "误报":
+                tableRow1.setBackgroundColor(Color.parseColor("D2834E10"));
+                break;
+        }
+
+
+        for(int i=0;i<texts.size();i++){
+            TextView text = new TextView(getApplicationContext());
+            text.setTextColor(Color.parseColor("#AEB0B9"));
+//            text.setBackgroundColor(Color.parseColor("#A4AA0202"));
+            text.setText(texts.get(i));
+            text.setGravity(Gravity.CENTER);
+
+            tableRow1.addView(text);
+        }
+            table.addView(tableRow1);
+//        tableLayout1.addView(row);
+
+        //要想在界面中实现数据添加后刷新，添加数据的代码要在Handler()函数中写。
+            eventTableHandler=new Handler(){
+            @Override
+            public void handleMessage(Message msg){
+                super.handleMessage(msg);
+                View v = (View) msg.obj;
+                showEditDialog(v);
+            }
+        };
+        }
+    }
+//    //异常事件start
+//
+    /*异常事件 处理框*/
+    private View.OnClickListener dialogListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            System.out.println(v.getId());
+            switch (v.getId()) {
+
+                case R.id.btn_save_pop:
+
+                    String description = createUserDialog.accident_des.getText().toString().trim();
+                    String state = createUserDialog.state.getText().toString().trim();
+                    createUserDialog.dismiss();
+                    TextView textView = (TextView) tableRow.getChildAt(3);
+
+                    switch (state){
+                        case "设为已处理":
+                            tableRow.setBackgroundColor(Color.parseColor("#C8628B34"));
+                            textView.setText("已处理");
+                            /**
+                             * 发送处理结结果
+                             */
+                            break;
+                        case "设为误报":
+                            tableRow.setBackgroundColor(Color.parseColor("#D2834E10"));
+                            textView.setText("误报");
+                            /**
+                             * 发送处理结果
+                             */
+                            break;
+                    }
+                    /**
+                     * * 取消监听
+                     *  * 清空tablerow
+                     */
+//                    System.out.println(description+"——"+state);
+                    break;
+
+            case R.id.btn_exit_pop:
+                createUserDialog.dismiss();
+                break;
+        }
+        }
+    };
+    /*异常事件*/
+    public void showEditDialog(View view) {
+        createUserDialog = new CreateUserDialog(this,R.style.AppTheme, dialogListener);
+        createUserDialog.show();
+    }
+
+//    //异常事件end
     /**
      * 信息bar
      */

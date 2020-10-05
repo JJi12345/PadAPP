@@ -5,13 +5,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.view.*;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -20,7 +21,11 @@ import com.padApp.application.MainApplication;
 import com.padApp.utils.EditTextClearTool;
 import com.padApp.utils.OkHttpUtil;
 
+import java.net.URI;
 import java.util.HashMap;
+
+import com.padApp.utils.websocket.JWebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 
 /**
  * @Author: jojo
@@ -56,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
         init();
     }
 
+
     public void init() {
         userNameEt = (EditText) findViewById(R.id.et_userName);
         pwdEt = (EditText) findViewById(R.id.et_password);
@@ -64,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn = (Button) findViewById(R.id.btn_login);
         registerTv = (TextView) findViewById(R.id.tv_register);
         rememberPwd = (CheckBox) findViewById(R.id.cb_checkbox);
+
 
         EditTextClearTool.addClearListener(userNameEt,userNameClear);
         EditTextClearTool.addClearListener(pwdEt,pwdClear);
@@ -117,7 +124,43 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
+//    public JWebSocketClient client;
+//    private void initWebSocket(){
+////        URI uri = URI.create("ws://127.0.0.1:8089/websocket/pad");
+//        URI uri = URI.create("ws://echo.websocket.org");
+//        client = new JWebSocketClient(uri) {
+//
+//            @Override
+//            public void onMessage(String message) {
+//                //message就是接收到的消息
+//                Log.e("JWebSClientService", message);
+//            }
+//            @Override
+//            public void onOpen(ServerHandshake handshakedata) {
+//                super.onOpen(handshakedata);
+//                Log.e("JWebSocketClientService", "websocket连接成功");
+//            }
+//        };
+//        connect();
+//    }
+//    /**
+//     * 连接websocket
+//     */
+//
+//    private void connect() {
+//        new Thread() {
+//            @Override
+//            public void run() {
+//                try {
+//                    //connectBlocking多出一个等待操作，会先连接再发送，否则未连接发送会报错
+//                    client.connectBlocking();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }.start();
+//
+//    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

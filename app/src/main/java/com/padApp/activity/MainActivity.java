@@ -12,14 +12,12 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.*;
 import android.provider.SyncStateContract;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
+import android.view.*;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.WindowManager;
 import android.widget.*;
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -36,6 +34,8 @@ import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.route.*;
 import com.github.mikephil.charting.components.Description;
 
+import com.padApp.utils.*;
+import com.padApp.view.EventDialog;
 import interfaces.heweather.com.interfacesmodule.bean.Code;
 import interfaces.heweather.com.interfacesmodule.bean.Lang;
 import interfaces.heweather.com.interfacesmodule.bean.Unit;
@@ -54,13 +54,10 @@ import com.padApp.application.MainApplication;
 import com.padApp.entityes.Criminal;
 import com.padApp.entityes.Event;
 import com.padApp.entityes.Task;
-import com.padApp.utils.GetUseage;
-import com.padApp.utils.OkHttpUtil;
-import com.padApp.utils.WarnDialog;
 import com.padApp.view.DeviceStateView;
 import com.padApp.view.MyImageView;
 import com.padApp.view.RiskChartView;
-import com.padApp.utils.CommonUtil;
+
 public class MainActivity extends AppCompatActivity{
     private TableRow tableRow ;
     private String userId = "130784";
@@ -71,8 +68,8 @@ public class MainActivity extends AppCompatActivity{
     private boolean STATUS = false;
     private  NowBase now;
     private String Result = "";
-    private TextView latitude;
-    private TextView longitude;
+//    private TextView latitude;
+//    private TextView longitude;
     private String latitude_v;
     private String longitude_v;
     private static final int REQUEST_LOGIN = 1;
@@ -118,11 +115,11 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate(MainActivity)");
         mainApplication = (MainApplication) getApplication();
-        if(!mainApplication.isLogin()) {
-            Intent intent = new Intent();
-            intent.setClass(MainActivity.this, LoginActivity.class);
-            startActivityForResult(intent, REQUEST_LOGIN);
-        } else {
+//        if(!mainApplication.isLogin()) {
+//            Intent intent = new Intent();
+//            intent.setClass(MainActivity.this, LoginActivity.class);
+//            startActivityForResult(intent, REQUEST_LOGIN);
+//        } else {
             STATUS = true;
             setContentView(R.layout.activity_main);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -158,7 +155,7 @@ public class MainActivity extends AppCompatActivity{
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+//        }
     }
 
     ServiceConnection conn = new ServiceConnection() {
@@ -177,17 +174,19 @@ public class MainActivity extends AppCompatActivity{
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void init(Bundle savedInstanceState, ActivityManager meManager, BatteryManager batManager) throws InterruptedException {
+
         Thread.sleep(2000);
-        setMap(savedInstanceState);
-        System.out.println("=criminal id="+mainApplication.getPrisonerId());
-        System.out.println("=criminal info="+mainApplication.getCriminalInfo());
-        System.out.println("=criminal anomalous event="+mainApplication.getEvent_c());
-        System.out.println("=criminal task="+mainApplication.getTask_());
-        System.out.println("=criminal risk="+mainApplication.getRisk());
-//        setDeviceInfo(meManager,batManager);
+//        setMap(savedInstanceState);
+//
+//        System.out.println("=criminal id="+mainApplication.getPrisonerId());
+//        System.out.println("=criminal info="+mainApplication.getCriminalInfo());
+//        System.out.println("=criminal anomalous event="+mainApplication.getEvent_c());
+//        System.out.println("=criminal task="+mainApplication.getTask_());
+//        System.out.println("=criminal risk="+mainApplication.getRisk());
+        setDeviceInfo(meManager,batManager);
         AnomalousEventTable();
-//        setCriminalInfoTables();
-//        topInfoBar();
+        setCriminalInfoTables();
+        topInfoBar();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -236,13 +235,36 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void  run(){
                 setRiskValue();
-                double degree = Double.valueOf(mainApplication.getRisk());
-                mService.updateChart(degree);
-                riskChartHandler.postDelayed(this, 1000);
+                String risk = mainApplication.getRisk();
+                if(risk!=null){
+                    double degree = Double.valueOf(risk);
+                    mService.updateChart(degree);
+                    riskChartHandler.postDelayed(this, 1000);
+                }
+
             }
         },0);
     }
+    private void setAbnormalEventWarning(){
+        EventDialog myDialog = new EventDialog(MainActivity.this);
 
+
+        myDialog.showDialog(R.layout.abnormal_event,100,50,mainApplication);
+    }
+    //判断新事件是否产生
+    private boolean newEvent(List<Event> events){
+        boolean hasNew = false;
+
+        Event event = events.get(0);
+        ArrayList<Event> old_event = event.String2Events(mainApplication.getOld_events());
+        Event o_e = old_event.get(0);
+        if(!event.getTime().equalsIgnoreCase(o_e.getTime())){
+            hasNew = true;
+        }
+
+        return hasNew;
+    }
+    private Handler anomalEventHandler;
     @SuppressLint("ResourceType")
     private void AnomalousEventTable(){
     /**
@@ -255,11 +277,59 @@ public class MainActivity extends AppCompatActivity{
      *     "riskValue": "88",
      *     "misdeclaration": false,
      *     "comment": null
-     */ int index = 0;
+     */
 
         TableLayout table = findViewById(R.id.anomalous_table);
         Event event_ = new Event();
-        List<Event> events = event_.String2Events(mainApplication.getEvent_c()).subList(0,10);
+        anomalEventHandler = new Handler();
+        String events_ = mainApplication.getEvent_c();
+        if(events_!=null){
+            List<Event> events = event_.String2Events(events_).subList(0,10);
+            tableRows(table,events);
+        }else{
+            int index = 1;
+            TableRow tableRow1 = new TableRow(getApplicationContext());
+            rows.add(tableRow1);
+            switch (index){
+                case 1:
+                    tableRow1.setId(R.id.row_1);
+                    break;
+            }
+            TextView text = new TextView(getApplicationContext());
+            text.setTextColor(Color.parseColor("#AEB0B9"));
+//            text.setBackgroundColor(Color.parseColor("#A4AA0202"));
+            text.setText("暂无数据");
+            text.setGravity(Gravity.CENTER);
+
+            tableRow1.addView(text);
+            table.addView(tableRow1);
+        }
+
+        anomalEventHandler.postDelayed(new Runnable(){
+            @Override
+            public void  run(){
+                String events_ = mainApplication.getEvent_c();
+
+                if(events_!=null){
+                    List<Event> events = event_.String2Events(events_).subList(0,10);
+                    System.out.println("---------------"+newEvent(events));
+                    if(newEvent(events)&&mainApplication.isEvent_dialog_flag()){
+
+                        mainApplication.setEvent_dialog_flag(false);
+                        setAbnormalEventWarning();
+                        tableRows(table,events);
+                    }
+
+                    anomalEventHandler.postDelayed(this, 10000);
+                }
+                setAnomalousEvents();
+            }
+        },0);
+    }
+    private void tableRows(TableLayout table ,List<Event> events){
+        int index = 0;
+        Map<String,String> row_id = new HashMap<>();
+
         for(Event event : events){
             index++;
             TableRow tableRow1 = new TableRow(getApplicationContext());
@@ -297,77 +367,82 @@ public class MainActivity extends AppCompatActivity{
                     break;
 
             }
-
-//            tableRow1.setText(String.valueOf("第 " + childCount + " 个view"));
-//            initAnimation(textView1, 1);
+            row_id.put(String.valueOf(tableRow1.getId()),event.getId());
+//
             String time = CommonUtil.getTimeFromTimeStamp(event.getTime());
             tableRow1.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try{
-                        Message msg = Message.obtain();
-                        msg.obj = (Object) v;
-                        tableRow = (TableRow) v;
-                        eventTableHandler.sendMessage(msg);
-                    }catch (Exception e){
-                        System.out.println(e);
-                    }
-                }
+                                             @Override
+                                             public void onClick(View v) {
+                                                 try{
+                                                     Message msg = Message.obtain();
+                                                     msg.obj = (Object) v;
+                                                     tableRow = (TableRow) v;
+                                                     eventTableHandler.sendMessage(msg);
+                                                 }catch (Exception e){
+                                                     System.out.println(e);
+                                                 }
+                                             }
+                                         }
+            );
+            ArrayList<String> texts = new ArrayList<>();
+            String state = event.getState();
+
+            texts.add(time);
+            texts.add(event.getPrisonerName());
+            texts.add(event.getCarNo());
+            texts.add(state);
+            texts.add(event.getRiskValue());
+
+
+            switch (state){
+                case "未处理":
+                    tableRow1.setBackgroundColor(Color.parseColor("#8F76467C"));
+                    break;
+                case "已处理":
+                    tableRow1.setBackgroundColor(Color.parseColor("#C14D757C"));
+                    break;
+                case "误报":
+                    tableRow1.setBackgroundColor(Color.parseColor("#C14D757C"));
+                    break;
             }
-        );
-        ArrayList<String> texts = new ArrayList<>();
-        String state = event.getState();
-
-        texts.add(time);
-        texts.add(event.getPrisonerName());
-        texts.add(event.getCarNo());
-        texts.add(state);
-        texts.add(event.getRiskValue());
 
 
-        switch (state){
-            case "未处理":
-                tableRow1.setBackgroundColor(Color.parseColor("#A4AA0202"));
-                break;
-            case "已处理":
-                tableRow1.setBackgroundColor(Color.parseColor("#C8628B34"));
-                break;
-            case "误报":
-                tableRow1.setBackgroundColor(Color.parseColor("D2834E10"));
-                break;
-        }
-
-
-        for(int i=0;i<texts.size();i++){
-            TextView text = new TextView(getApplicationContext());
-            text.setTextColor(Color.parseColor("#AEB0B9"));
+            for(int i=0;i<texts.size();i++){
+                TextView text = new TextView(getApplicationContext());
+                text.setTextColor(Color.parseColor("#AEB0B9"));
 //            text.setBackgroundColor(Color.parseColor("#A4AA0202"));
-            text.setText(texts.get(i));
-            text.setGravity(Gravity.CENTER);
+                text.setText(texts.get(i));
+                text.setGravity(Gravity.CENTER);
 
-            tableRow1.addView(text);
-        }
+                tableRow1.addView(text);
+            }
             table.addView(tableRow1);
 //        tableLayout1.addView(row);
 
-        //要想在界面中实现数据添加后刷新，添加数据的代码要在Handler()函数中写。
+            //要想在界面中实现数据添加后刷新，添加数据的代码要在Handler()函数中写。
             eventTableHandler=new Handler(){
-            @Override
-            public void handleMessage(Message msg){
-                super.handleMessage(msg);
-                View v = (View) msg.obj;
-                showEditDialog(v);
-            }
-        };
+                @Override
+                public void handleMessage(Message msg){
+                    super.handleMessage(msg);
+                    View v = (View) msg.obj;
+                    showEditDialog(v);
+                }
+            };
         }
+        mainApplication.setTableRow(row_id);
     }
-//    //异常事件start
-//
-    /*异常事件 处理框*/
+// 异常事件start
+
+
+    /*异常事件处理框 修改并上传到后台*/
     private View.OnClickListener dialogListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            System.out.println(v.getId());
+
+            String tables = mainApplication.getTableRow();
+//            System.out.println("-----------------"+tables);
+            Map<String,String> row_id = MapString.getStringToMap(tables);
+            String id = row_id.get(String.valueOf(tableRow.getId()));
             switch (v.getId()) {
 
                 case R.id.btn_save_pop:
@@ -376,7 +451,7 @@ public class MainActivity extends AppCompatActivity{
                     String state = createUserDialog.state.getText().toString().trim();
                     createUserDialog.dismiss();
                     TextView textView = (TextView) tableRow.getChildAt(3);
-
+                    String utl_comment = "/exceptions/comment";
                     switch (state){
                         case "设为已处理":
                             tableRow.setBackgroundColor(Color.parseColor("#C8628B34"));
@@ -384,13 +459,33 @@ public class MainActivity extends AppCompatActivity{
                             /**
                              * 发送处理结结果
                              */
+                            String url = "/exceptions/changeState";
+                            HashMap<String, String> params = new HashMap<>(1);
+                            params.put("id", id);
+                            params.put("token",mainApplication.getToken());
+                            postInfo(url,params,"change state");
+
+
+                            params.put("comment", description);
+                            postInfo(utl_comment,params,"set comment");
+
+
                             break;
                         case "设为误报":
                             tableRow.setBackgroundColor(Color.parseColor("#D2834E10"));
                             textView.setText("误报");
+                            String url_mis = "/exceptions/misdeclaration";
                             /**
                              * 发送处理结果
                              */
+                            HashMap<String, String> params_ = new HashMap<>(1);
+                            params_.put("id", id);
+
+                            params_.put("token",mainApplication.getToken());
+                            postInfo(url_mis,params_,"mis-declaration");
+                            params_.put("comment", description);
+                            postInfo(utl_comment,params_,"set comment");
+
                             break;
                     }
                     /**
@@ -409,6 +504,8 @@ public class MainActivity extends AppCompatActivity{
     /*异常事件*/
     public void showEditDialog(View view) {
         createUserDialog = new CreateUserDialog(this,R.style.AppTheme, dialogListener);
+
+
         createUserDialog.show();
     }
 
@@ -418,8 +515,8 @@ public class MainActivity extends AppCompatActivity{
      */
     private void topInfoBar(){
 
-        latitude = findViewById(R.id.latitude);
-        longitude = findViewById(R.id.longitude);
+//        latitude = findViewById(R.id.latitude);
+//        longitude = findViewById(R.id.longitude);
         ImageView run_img = findViewById(R.id.run_img);
         ImageView walk_img = findViewById(R.id.walk_img);
         ImageView lie_img = findViewById(R.id.lie_img);
@@ -459,8 +556,8 @@ public class MainActivity extends AppCompatActivity{
                     JSONObject jsonObj = JSON.parseObject(Result);
                     latitude_v = jsonObj.getString("latitude");
                     longitude_v = jsonObj.getString("longitude");
-                    latitude.setText(latitude_v);
-                    longitude.setText(longitude_v);
+//                    latitude.setText(latitude_v);
+//                    longitude.setText(longitude_v);
                     getWeatherFromHeAPI(
                             nf.format(Double.valueOf(longitude_v)),
                             nf.format(Double.valueOf(latitude_v))
@@ -488,9 +585,9 @@ public class MainActivity extends AppCompatActivity{
                             break;
                         case "lie":
                             state.setText("躺");
-                            lie_img.setImageDrawable((getResources().getDrawable(R.drawable.tang_a)));
-                            run_img.setImageDrawable((getResources().getDrawable(R.drawable.run_ina)));
-                            walk_img.setImageDrawable((getResources().getDrawable(R.drawable.walk_ina)));
+                            lie_img.setImageDrawable(getResources().getDrawable(R.drawable.tang_a));
+                            run_img.setImageDrawable(getResources().getDrawable(R.drawable.run_ina));
+                            walk_img.setImageDrawable(getResources().getDrawable(R.drawable.walk_ina));
                             break;
                         case "other":
                             state.setText("其他");
@@ -559,504 +656,504 @@ public class MainActivity extends AppCompatActivity{
     /**  /////////////////////////////////////////////////////////////////////////
      *Map
      ///////////////////////////////////////////////////////////////////////// **/
-    private void setMap(Bundle savedInstanceState){
-        mapView = findViewById(R.id.map_view);
-        mapView.onCreate(savedInstanceState);
-        mainApplication = (MainApplication) getApplication();
-        Log.i(TAG, "init(MapActivity)");
-
-        if (aMap == null) {
-            aMap = mapView.getMap();
-        }
-        RouteSearch routeSearch = new RouteSearch(this);
-        routeSearch.setRouteSearchListener(new RouteSearch.OnRouteSearchListener() {
-            @Override
-            public void onBusRouteSearched(BusRouteResult busRouteResult, int i) {
-
-            }
-
-            @Override
-            public void onDriveRouteSearched(DriveRouteResult result, int errorCode) {
-                dissmissProgressDialog();
-                aMap.clear();// 清理地图上的所有覆盖物
-                if (errorCode == AMapException.CODE_AMAP_SUCCESS) {
-                    if (result != null && result.getPaths() != null) {
-                        if (result.getPaths().size() > 0) {
-                            mDriveRouteResult = result;
-                            drivePath = mDriveRouteResult.getPaths().get(0);
-                            //设置节点marker是否显示
-                            setNodeIconVisibility(false);
-                            // 是否用颜色展示交通拥堵情况，默认true
-                            setIsColorfulline(true);
-                            removeFromMap();
-                            addToMap();
-                            zoomToSpan();
-                            markerList = new ArrayList<>();
-                            smoothMarkerList = new ArrayList<>();
-                            for (int i = 0; i < totalCarNum; i++) {
-                                markerList.add(aMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.mipmap.icon_car)).anchor(0.5f, 0.5f)));
-                                smoothMarkerList.add(new MovingPointOverlay(aMap, markerList.get(markerList.size() - 1)));
-                            }
-                            LatLng drivePoint = mLatLngsOfPath.get(0);
-                            Pair<Integer, LatLng> pair = SpatialRelationUtil.calShortestDistancePoint(mLatLngsOfPath, drivePoint);
-                            mLatLngsOfPath.set(pair.first, drivePoint);
-                            for (int i = 0; i  < smoothMarkerList.size(); i++){
-                                smoothMarkerList.get(i).setPoints(mLatLngsOfPath.subList(pair.first + i*4, mLatLngsOfPath.size()));
-                                smoothMarkerList.get(i).setTotalDuration(1000 - i*10);
-                            }
-                            for (MovingPointOverlay sm : smoothMarkerList){
-                                sm.startSmoothMove();
-                            }
-                            // 设置  自定义的InfoWindow 适配器
-                            aMap.setInfoWindowAdapter(infoWindowAdapter);
-                            // 显示 infowindow
-                            markerList.get(0).showInfoWindow();
-                            String cName = getCriminal().getName();
-                            String uName = mainApplication.getUserName();
-                            String carNo = "";
-                            if(!getTask().equals(null)){
-                                carNo = getTask().getCarNo();
-                            }
-                            // 设置移动的监听事件  返回 距终点的距离  单位 米
-                            String finalCName = cName;
-                            String finalCarNo = carNo;
-                            smoothMarkerList.get(0).setMoveListener(new MovingPointOverlay.MoveListener() {
-                                @SuppressLint("SetTextI18n")
-                                @Override
-                                public void move(double v) {
-                                    runOnUiThread(() -> {
-                                        if(title != null){
-
-                                            title.setText( "距离终点还有： " + (int) v + "米");
-                                            prisoner_icon.setImageResource(R.mipmap.prisoner_6);
-                                            prisoner_name.setText(cName);
-                                            police_name.setText(uName);
-                                            car_no.setText(finalCarNo);
-
-
-                                        }
-                                    });
-                                }
-                            });
-                        } else if (result.getPaths() == null) {
-                            Toast.makeText(getApplicationContext(), R.string.no_result, Toast.LENGTH_LONG).show();
-                        }
-                    } else {
-                        Toast.makeText(getApplicationContext(), R.string.no_result,Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Toast.makeText(getApplicationContext(), "errorCode：" + errorCode, Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onWalkRouteSearched(WalkRouteResult walkRouteResult, int i) {
-
-            }
-
-            @Override
-            public void onRideRouteSearched(RideRouteResult rideRouteResult, int i) {
-
-            }
-        });
-        RouteSearch.FromAndTo fromAndTo = new RouteSearch.FromAndTo(mStartPoint, mEndPoint);
-        RouteSearch.DriveRouteQuery query = new RouteSearch.DriveRouteQuery(fromAndTo, 2, null, null, "");
-        routeSearch.calculateDriveRouteAsyn(query);
-    }
-    private void showMessage(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    }
-    private void showDialog() {
-        if(warnDialog == null) {
-            warnDialog = WarnDialog.showDialog(this, "");
-        }
-        warnDialog.show();
-    }
-    private void destroyDialog() {
-        if(warnDialog != null) {
-            warnDialog.dismiss();
-        }
-    }
-
-    /**
-     *  个性化定制的信息窗口视图的类
-     *  如果要定制化渲染这个信息窗口，需要重载getInfoWindow(Marker)方法。
-     *  如果只是需要替换信息窗口的内容，则需要重载getInfoContents(Marker)方法。
-     */
-    private TextView title, prisoner_name, police_name, car_no;
-    private ImageView prisoner_icon;
-    private AMap.InfoWindowAdapter infoWindowAdapter = new AMap.InfoWindowAdapter(){
-        // 个性化Marker的InfoWindow 视图
-        // 如果这个方法返回null，则将会使用默认的信息窗口风格，内容将会调用getInfoContents(Marker)方法获取
-        @Override
-        public View getInfoWindow(Marker marker) {
-            View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_window,null);
-            render(infoWindow);
-            return infoWindow;
-        }
-        // 这个方法只有在getInfoWindow(Marker)返回null 时才会被调用
-        // 定制化的view 做这个信息窗口的内容，如果返回null 将以默认内容渲染
-        @Override
-        public View getInfoContents(Marker marker) {
-            return null;
-        }
-    };
-    @SuppressLint("SetTextI18n")
-    private void render(View view) {
-        //如果想修改自定义Infow中内容，请通过view找到它并修改
-        title = view.findViewById(R.id.title);
-        prisoner_icon = view.findViewById(R.id.escort_image);
-        prisoner_name = view.findViewById(R.id.prisoner_name);
-        police_name = view.findViewById(R.id.police_name);
-        car_no = view.findViewById(R.id.car_no);
-        title.setText("距离终点还有： " + " " + "米");
-        prisoner_icon.setImageResource(R.mipmap.escort_dog);
-        prisoner_name.setText("");
-        police_name.setText("");
-        car_no.setText("");
-    }
-
-    public void showPreCarInfo(View view){
-        if(aMap!=null && markerList.size()!= 0){
-            curNum = (curNum + totalCarNum+1)%totalCarNum;
-            markerList.get(curNum).showInfoWindow();
-        }
-    }
-
-    public void showNextCarInfo(View view){
-        if(aMap!=null && markerList.size()!= 0){
-            curNum = (curNum + totalCarNum-1)%totalCarNum;
-            markerList.get(curNum).showInfoWindow();
-        }
-    }
-
-    /**
-     * 隐藏进度框
-     */
-    private void dissmissProgressDialog() {
-        if (progDialog != null) {
-            progDialog.dismiss();
-        }
-    }
-
-    private void removeFromMap() {
-        try {
-            if (startMarker != null) {
-                startMarker.remove();
-            }
-            if (endMarker != null) {
-                endMarker.remove();
-            }
-            for (Marker marker : stationMarkers) {
-                marker.remove();
-            }
-            for (Polyline line : allPolyLines) {
-                line.remove();
-            }
-            if (this.throughPointMarkerList != null
-                    && this.throughPointMarkerList.size() > 0) {
-                for (Marker marker : this.throughPointMarkerList) {
-                    marker.remove();
-                }
-                this.throughPointMarkerList.clear();
-            }
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void zoomToSpan() {
-        if (mStartPoint != null) {
-            if (aMap == null){
-                return;
-            }
-            try {
-                LatLngBounds bounds = getLatLngBounds();
-                aMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private LatLngBounds getLatLngBounds() {
-        LatLngBounds.Builder b = LatLngBounds.builder();
-        b.include(new com.amap.api.maps.model.LatLng(mStartPoint.getLatitude(), mStartPoint.getLongitude()));
-        b.include(new LatLng(mEndPoint.getLatitude(), mEndPoint.getLongitude()));
-        return b.build();
-    }
-
-    private void addStationMarker(MarkerOptions options) {
-        if(options == null) {
-            return;
-        }
-        Marker marker = aMap.addMarker(options);
-        if(marker != null) {
-            stationMarkers.add(marker);
-        }
-    }
-
-    /**
-     * 路段节点图标控制显示接口。
-     * @param visible true为显示节点图标，false为不显示。
-     * @since V2.3.1
-     */
-    private void setNodeIconVisibility(boolean visible) {
-        try {
-            nodeIconVisible = visible;
-            if (stationMarkers != null && stationMarkers.size() > 0) {
-                for (Marker stationMarker : stationMarkers) {
-                    stationMarker.setVisible(visible);
-                }
-            }
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setIsColorfulline(boolean iscolorfulline) {
-        this.isColorfulline = iscolorfulline;
-    }
-
-    /**
-     * 添加驾车路线添加到地图上显示。
-     */
-    private void addToMap() {
-        initPolylineOptions();
-        try {
-            if (aMap == null) {
-                return;
-            }
-            if (mWidth == 0 || drivePath == null) {
-                return;
-            }
-            mLatLngsOfPath = new ArrayList<LatLng>();
-            tmcs = new ArrayList<TMC>();
-            List<DriveStep> drivePaths = drivePath.getSteps();
-            startPoint = convertToLatLng(mStartPoint);
-            endPoint = convertToLatLng(mEndPoint);
-            mPolylineOptions.add(startPoint);
-            for (DriveStep step : drivePaths) {
-                List<LatLonPoint> latlonPoints = step.getPolyline();
-                List<TMC> tmclist = step.getTMCs();
-                tmcs.addAll(tmclist);
-                addDrivingStationMarkers(step, convertToLatLng(latlonPoints.get(0)));
-                for (LatLonPoint latlonpoint : latlonPoints) {
-                    mPolylineOptions.add(convertToLatLng(latlonpoint));
-                    mLatLngsOfPath.add(convertToLatLng(latlonpoint));
-                }
-            }
-            mPolylineOptions.add(endPoint);
-            if (startMarker != null) {
-                startMarker.remove();
-                startMarker = null;
-            }
-            if (endMarker != null) {
-                endMarker.remove();
-                endMarker = null;
-            }
-            addStartAndEndMarker();
-            addThroughPointMarker();
-            if (isColorfulline && tmcs.size()>0 ) {
-                colorWayUpdate(tmcs);
-            }else {
-                addPolyLine(mPolylineOptions);
-            }
-
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 根据不同的路段拥堵情况展示不同的颜色
-     * @param tmcSection is
-     */
-    private void colorWayUpdate(List<TMC> tmcSection) {
-        if (aMap == null) {
-            return;
-        }
-        if (tmcSection == null || tmcSection.size() <= 0) {
-            return;
-        }
-        TMC segmentTrafficStatus;
-        addPolyLine(new PolylineOptions().add(startPoint,
-                convertToLatLng(tmcSection.get(0).getPolyline().get(0)))
-                .setDottedLine(true));
-        String status = "";
-        for (int i = 0; i < tmcSection.size(); i++) {
-            segmentTrafficStatus = tmcSection.get(i);
-            List<LatLonPoint> mployline = segmentTrafficStatus.getPolyline();
-            if (status.equals(segmentTrafficStatus.getStatus())) {
-                for (int j = 1; j < mployline.size(); j++) {
-                    //第一个点和上一段最后一个点重复，这个不重复添加
-                    mPolylineOptionscolor.add(convertToLatLng(mployline.get(j)));
-                }
-            }else {
-                if (mPolylineOptionscolor != null) {
-                    addPolyLine(mPolylineOptionscolor.color(getColor(status)));
-                }
-                mPolylineOptionscolor = null;
-                mPolylineOptionscolor = new PolylineOptions().width(mWidth);
-                status = segmentTrafficStatus.getStatus();
-                for (LatLonPoint latLonPoint : mployline) {
-                    mPolylineOptionscolor.add(convertToLatLng(latLonPoint));
-                }
-            }
-            if (i == tmcSection.size()-1 && mPolylineOptionscolor != null) {
-                addPolyLine(mPolylineOptionscolor.color(getColor(status)));
-                addPolyLine(new PolylineOptions().add(
-                        convertToLatLng(mployline.get(mployline.size()-1)), endPoint)
-                        .setDottedLine(true));
-            }
-        }
-    }
-
-    private int getColor(String status) {
-        switch (status) {
-            case "畅通":
-                return Color.GREEN;
-            case "缓行":
-                return Color.YELLOW;
-            case "拥堵":
-                return Color.RED;
-            case "严重拥堵":
-                return Color.parseColor("#990033");
-            default:
-                return Color.parseColor("#537edc");
-        }
-    }
-
-    private void addPolyLine(PolylineOptions options) {
-        if(options == null) {
-            return;
-        }
-        Polyline polyline = aMap.addPolyline(options);
-        if(polyline != null) {
-            allPolyLines.add(polyline);
-        }
-    }
-
-    private void addThroughPointMarker() {
-        if (this.throughPointList != null && this.throughPointList.size() > 0) {
-            LatLonPoint latLonPoint;
-            for (LatLonPoint lonPoint : this.throughPointList) {
-                latLonPoint = lonPoint;
-                if (latLonPoint != null) {
-                    boolean throughPointMarkerVisible = true;
-                    throughPointMarkerList.add(aMap
-                            .addMarker((new MarkerOptions())
-                                    .position(
-                                            new LatLng(latLonPoint
-                                                    .getLatitude(), latLonPoint
-                                                    .getLongitude()))
-                                    .visible(throughPointMarkerVisible)
-                                    .icon(getThroughPointBitDes())
-                                    .title("\u9014\u7ECF\u70B9")));
-                }
-            }
-        }
-    }
-
-    private BitmapDescriptor getThroughPointBitDes() {
-        return BitmapDescriptorFactory.fromResource(R.mipmap.amap_through);
-    }
-
-    private void addStartAndEndMarker() {
-        startMarker = aMap.addMarker((new MarkerOptions())
-                .position(startPoint).icon(getStartBitmapDescriptor())
-                .title("\u8D77\u70B9"));
-        endMarker = aMap.addMarker((new MarkerOptions()).position(endPoint)
-                .icon(getEndBitmapDescriptor()).title("\u7EC8\u70B9"));
-    }
-
-    /**
-     * 给起点Marker设置图标，并返回更换图标的图片。如不用默认图片，需要重写此方法。
-     * @return 更换的Marker图片。
-     * @since V2.1.0
-     */
-    private BitmapDescriptor getStartBitmapDescriptor() {
-        return BitmapDescriptorFactory.fromResource(R.mipmap.amap_start);
-    }
-    private BitmapDescriptor getEndBitmapDescriptor() {
-        return BitmapDescriptorFactory.fromResource(R.mipmap.amap_end);
-    }
-    private BitmapDescriptor getDriveBitmapDescriptor() {
-        return BitmapDescriptorFactory.fromResource(R.mipmap.amap_car);
-    }
-
-    private void addDrivingStationMarkers(DriveStep driveStep, LatLng latLng) {
-        addStationMarker(new MarkerOptions()
-                .position(latLng)
-                .title("\u65B9\u5411:" + driveStep.getAction()
-                        + "\n\u9053\u8DEF:" + driveStep.getRoad())
-                .snippet(driveStep.getInstruction()).visible(nodeIconVisible)
-                .anchor(0.5f, 0.5f).icon(getDriveBitmapDescriptor()));
-    }
-
-    private static LatLng convertToLatLng(LatLonPoint latLonPoint) {
-        return new LatLng(latLonPoint.getLatitude(), latLonPoint.getLongitude());
-    }
-
-    private void initPolylineOptions() {
-        mPolylineOptions = null;
-        mPolylineOptions = new PolylineOptions();
-        mPolylineOptions.color(Color.parseColor("#537edc")).width(18f);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.i(TAG, "onActivityResult(Map)");
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG, "onStart(Map)");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.i(TAG, "onDestroy(Map)");
-        if(smoothMarkerList.size() > 0) {
-            for (MovingPointOverlay movingPointOverlay : smoothMarkerList) {
-                if (movingPointOverlay != null) {
-                    movingPointOverlay.setMoveListener(null);
-                    movingPointOverlay.destroy();
-                }
-            }
-        }
-        mapView.onDestroy();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.i(TAG, "onPause(Map)");
-        mapView.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG, "onResume(Map)");
-        mapView.onResume();
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.i(TAG, "onRestart(Map)");
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
-    }
-
+//    private void setMap(Bundle savedInstanceState){
+//        mapView = findViewById(R.id.map_view);
+//        mapView.onCreate(savedInstanceState);
+//        mainApplication = (MainApplication) getApplication();
+//        Log.i(TAG, "init(MapActivity)");
+//
+//        if (aMap == null) {
+//            aMap = mapView.getMap();
+//        }
+//        RouteSearch routeSearch = new RouteSearch(this);
+//        routeSearch.setRouteSearchListener(new RouteSearch.OnRouteSearchListener() {
+//            @Override
+//            public void onBusRouteSearched(BusRouteResult busRouteResult, int i) {
+//
+//            }
+//
+//            @Override
+//            public void onDriveRouteSearched(DriveRouteResult result, int errorCode) {
+//                dissmissProgressDialog();
+//                aMap.clear();// 清理地图上的所有覆盖物
+//                if (errorCode == AMapException.CODE_AMAP_SUCCESS) {
+//                    if (result != null && result.getPaths() != null) {
+//                        if (result.getPaths().size() > 0) {
+//                            mDriveRouteResult = result;
+//                            drivePath = mDriveRouteResult.getPaths().get(0);
+//                            //设置节点marker是否显示
+//                            setNodeIconVisibility(false);
+//                            // 是否用颜色展示交通拥堵情况，默认true
+//                            setIsColorfulline(true);
+//                            removeFromMap();
+//                            addToMap();
+//                            zoomToSpan();
+//                            markerList = new ArrayList<>();
+//                            smoothMarkerList = new ArrayList<>();
+//                            for (int i = 0; i < totalCarNum; i++) {
+//                                markerList.add(aMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.mipmap.icon_car)).anchor(0.5f, 0.5f)));
+//                                smoothMarkerList.add(new MovingPointOverlay(aMap, markerList.get(markerList.size() - 1)));
+//                            }
+//                            LatLng drivePoint = mLatLngsOfPath.get(0);
+//                            Pair<Integer, LatLng> pair = SpatialRelationUtil.calShortestDistancePoint(mLatLngsOfPath, drivePoint);
+//                            mLatLngsOfPath.set(pair.first, drivePoint);
+//                            for (int i = 0; i  < smoothMarkerList.size(); i++){
+//                                smoothMarkerList.get(i).setPoints(mLatLngsOfPath.subList(pair.first + i*4, mLatLngsOfPath.size()));
+//                                smoothMarkerList.get(i).setTotalDuration(1000 - i*10);
+//                            }
+//                            for (MovingPointOverlay sm : smoothMarkerList){
+//                                sm.startSmoothMove();
+//                            }
+//                            // 设置  自定义的InfoWindow 适配器
+//                            aMap.setInfoWindowAdapter(infoWindowAdapter);
+//                            // 显示 infowindow
+//                            markerList.get(0).showInfoWindow();
+//                            String cName = getCriminal().getName();
+//                            String uName = mainApplication.getUserName();
+//                            String carNo = "";
+//                            if(!getTask().equals(null)){
+//                                carNo = getTask().getCarNo();
+//                            }
+//                            // 设置移动的监听事件  返回 距终点的距离  单位 米
+//                            String finalCName = cName;
+//                            String finalCarNo = carNo;
+//                            smoothMarkerList.get(0).setMoveListener(new MovingPointOverlay.MoveListener() {
+//                                @SuppressLint("SetTextI18n")
+//                                @Override
+//                                public void move(double v) {
+//                                    runOnUiThread(() -> {
+//                                        if(title != null){
+//
+//                                            title.setText( "距离终点还有： " + (int) v + "米");
+//                                            prisoner_icon.setImageResource(R.mipmap.prisoner_6);
+//                                            prisoner_name.setText(cName);
+//                                            police_name.setText(uName);
+//                                            car_no.setText(finalCarNo);
+//
+//
+//                                        }
+//                                    });
+//                                }
+//                            });
+//                        } else if (result.getPaths() == null) {
+//                            Toast.makeText(getApplicationContext(), R.string.no_result, Toast.LENGTH_LONG).show();
+//                        }
+//                    } else {
+//                        Toast.makeText(getApplicationContext(), R.string.no_result,Toast.LENGTH_LONG).show();
+//                    }
+//                } else {
+//                    Toast.makeText(getApplicationContext(), "errorCode：" + errorCode, Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onWalkRouteSearched(WalkRouteResult walkRouteResult, int i) {
+//
+//            }
+//
+//            @Override
+//            public void onRideRouteSearched(RideRouteResult rideRouteResult, int i) {
+//
+//            }
+//        });
+//        RouteSearch.FromAndTo fromAndTo = new RouteSearch.FromAndTo(mStartPoint, mEndPoint);
+//        RouteSearch.DriveRouteQuery query = new RouteSearch.DriveRouteQuery(fromAndTo, 2, null, null, "");
+//        routeSearch.calculateDriveRouteAsyn(query);
+//    }
+//    private void showMessage(String msg) {
+//        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+//    }
+//    private void showDialog() {
+//        if(warnDialog == null) {
+//            warnDialog = WarnDialog.showDialog(this, "");
+//        }
+//        warnDialog.show();
+//    }
+//    private void destroyDialog() {
+//        if(warnDialog != null) {
+//            warnDialog.dismiss();
+//        }
+//    }
+//
+//    /**
+//     *  个性化定制的信息窗口视图的类
+//     *  如果要定制化渲染这个信息窗口，需要重载getInfoWindow(Marker)方法。
+//     *  如果只是需要替换信息窗口的内容，则需要重载getInfoContents(Marker)方法。
+//     */
+//    private TextView title, prisoner_name, police_name, car_no;
+//    private ImageView prisoner_icon;
+//    private AMap.InfoWindowAdapter infoWindowAdapter = new AMap.InfoWindowAdapter(){
+//        // 个性化Marker的InfoWindow 视图
+//        // 如果这个方法返回null，则将会使用默认的信息窗口风格，内容将会调用getInfoContents(Marker)方法获取
+//        @Override
+//        public View getInfoWindow(Marker marker) {
+//            View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_window,null);
+//            render(infoWindow);
+//            return infoWindow;
+//        }
+//        // 这个方法只有在getInfoWindow(Marker)返回null 时才会被调用
+//        // 定制化的view 做这个信息窗口的内容，如果返回null 将以默认内容渲染
+//        @Override
+//        public View getInfoContents(Marker marker) {
+//            return null;
+//        }
+//    };
+//    @SuppressLint("SetTextI18n")
+//    private void render(View view) {
+//        //如果想修改自定义Infow中内容，请通过view找到它并修改
+//        title = view.findViewById(R.id.title);
+//        prisoner_icon = view.findViewById(R.id.escort_image);
+//        prisoner_name = view.findViewById(R.id.prisoner_name);
+//        police_name = view.findViewById(R.id.police_name);
+//        car_no = view.findViewById(R.id.car_no);
+//        title.setText("距离终点还有： " + " " + "米");
+//        prisoner_icon.setImageResource(R.mipmap.escort_dog);
+//        prisoner_name.setText("");
+//        police_name.setText("");
+//        car_no.setText("");
+//    }
+//
+//    public void showPreCarInfo(View view){
+//        if(aMap!=null && markerList.size()!= 0){
+//            curNum = (curNum + totalCarNum+1)%totalCarNum;
+//            markerList.get(curNum).showInfoWindow();
+//        }
+//    }
+//
+//    public void showNextCarInfo(View view){
+//        if(aMap!=null && markerList.size()!= 0){
+//            curNum = (curNum + totalCarNum-1)%totalCarNum;
+//            markerList.get(curNum).showInfoWindow();
+//        }
+//    }
+//
+//    /**
+//     * 隐藏进度框
+//     */
+//    private void dissmissProgressDialog() {
+//        if (progDialog != null) {
+//            progDialog.dismiss();
+//        }
+//    }
+//
+//    private void removeFromMap() {
+//        try {
+//            if (startMarker != null) {
+//                startMarker.remove();
+//            }
+//            if (endMarker != null) {
+//                endMarker.remove();
+//            }
+//            for (Marker marker : stationMarkers) {
+//                marker.remove();
+//            }
+//            for (Polyline line : allPolyLines) {
+//                line.remove();
+//            }
+//            if (this.throughPointMarkerList != null
+//                    && this.throughPointMarkerList.size() > 0) {
+//                for (Marker marker : this.throughPointMarkerList) {
+//                    marker.remove();
+//                }
+//                this.throughPointMarkerList.clear();
+//            }
+//        } catch (Throwable e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    private void zoomToSpan() {
+//        if (mStartPoint != null) {
+//            if (aMap == null){
+//                return;
+//            }
+//            try {
+//                LatLngBounds bounds = getLatLngBounds();
+//                aMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
+//            } catch (Throwable e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+//
+//    private LatLngBounds getLatLngBounds() {
+//        LatLngBounds.Builder b = LatLngBounds.builder();
+//        b.include(new LatLng(mStartPoint.getLatitude(), mStartPoint.getLongitude()));
+//        b.include(new LatLng(mEndPoint.getLatitude(), mEndPoint.getLongitude()));
+//        return b.build();
+//    }
+//
+//    private void addStationMarker(MarkerOptions options) {
+//        if(options == null) {
+//            return;
+//        }
+//        Marker marker = aMap.addMarker(options);
+//        if(marker != null) {
+//            stationMarkers.add(marker);
+//        }
+//    }
+//
+//    /**
+//     * 路段节点图标控制显示接口。
+//     * @param visible true为显示节点图标，false为不显示。
+//     * @since V2.3.1
+//     */
+//    private void setNodeIconVisibility(boolean visible) {
+//        try {
+//            nodeIconVisible = visible;
+//            if (stationMarkers != null && stationMarkers.size() > 0) {
+//                for (Marker stationMarker : stationMarkers) {
+//                    stationMarker.setVisible(visible);
+//                }
+//            }
+//        } catch (Throwable e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    private void setIsColorfulline(boolean iscolorfulline) {
+//        this.isColorfulline = iscolorfulline;
+//    }
+//
+//    /**
+//     * 添加驾车路线添加到地图上显示。
+//     */
+//    private void addToMap() {
+//        initPolylineOptions();
+//        try {
+//            if (aMap == null) {
+//                return;
+//            }
+//            if (mWidth == 0 || drivePath == null) {
+//                return;
+//            }
+//            mLatLngsOfPath = new ArrayList<LatLng>();
+//            tmcs = new ArrayList<TMC>();
+//            List<DriveStep> drivePaths = drivePath.getSteps();
+//            startPoint = convertToLatLng(mStartPoint);
+//            endPoint = convertToLatLng(mEndPoint);
+//            mPolylineOptions.add(startPoint);
+//            for (DriveStep step : drivePaths) {
+//                List<LatLonPoint> latlonPoints = step.getPolyline();
+//                List<TMC> tmclist = step.getTMCs();
+//                tmcs.addAll(tmclist);
+//                addDrivingStationMarkers(step, convertToLatLng(latlonPoints.get(0)));
+//                for (LatLonPoint latlonpoint : latlonPoints) {
+//                    mPolylineOptions.add(convertToLatLng(latlonpoint));
+//                    mLatLngsOfPath.add(convertToLatLng(latlonpoint));
+//                }
+//            }
+//            mPolylineOptions.add(endPoint);
+//            if (startMarker != null) {
+//                startMarker.remove();
+//                startMarker = null;
+//            }
+//            if (endMarker != null) {
+//                endMarker.remove();
+//                endMarker = null;
+//            }
+//            addStartAndEndMarker();
+//            addThroughPointMarker();
+//            if (isColorfulline && tmcs.size()>0 ) {
+//                colorWayUpdate(tmcs);
+//            }else {
+//                addPolyLine(mPolylineOptions);
+//            }
+//
+//        } catch (Throwable e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    /**
+//     * 根据不同的路段拥堵情况展示不同的颜色
+//     * @param tmcSection is
+//     */
+//    private void colorWayUpdate(List<TMC> tmcSection) {
+//        if (aMap == null) {
+//            return;
+//        }
+//        if (tmcSection == null || tmcSection.size() <= 0) {
+//            return;
+//        }
+//        TMC segmentTrafficStatus;
+//        addPolyLine(new PolylineOptions().add(startPoint,
+//                convertToLatLng(tmcSection.get(0).getPolyline().get(0)))
+//                .setDottedLine(true));
+//        String status = "";
+//        for (int i = 0; i < tmcSection.size(); i++) {
+//            segmentTrafficStatus = tmcSection.get(i);
+//            List<LatLonPoint> mployline = segmentTrafficStatus.getPolyline();
+//            if (status.equals(segmentTrafficStatus.getStatus())) {
+//                for (int j = 1; j < mployline.size(); j++) {
+//                    //第一个点和上一段最后一个点重复，这个不重复添加
+//                    mPolylineOptionscolor.add(convertToLatLng(mployline.get(j)));
+//                }
+//            }else {
+//                if (mPolylineOptionscolor != null) {
+//                    addPolyLine(mPolylineOptionscolor.color(getColor(status)));
+//                }
+//                mPolylineOptionscolor = null;
+//                mPolylineOptionscolor = new PolylineOptions().width(mWidth);
+//                status = segmentTrafficStatus.getStatus();
+//                for (LatLonPoint latLonPoint : mployline) {
+//                    mPolylineOptionscolor.add(convertToLatLng(latLonPoint));
+//                }
+//            }
+//            if (i == tmcSection.size()-1 && mPolylineOptionscolor != null) {
+//                addPolyLine(mPolylineOptionscolor.color(getColor(status)));
+//                addPolyLine(new PolylineOptions().add(
+//                        convertToLatLng(mployline.get(mployline.size()-1)), endPoint)
+//                        .setDottedLine(true));
+//            }
+//        }
+//    }
+//
+//    private int getColor(String status) {
+//        switch (status) {
+//            case "畅通":
+//                return Color.GREEN;
+//            case "缓行":
+//                return Color.YELLOW;
+//            case "拥堵":
+//                return Color.RED;
+//            case "严重拥堵":
+//                return Color.parseColor("#990033");
+//            default:
+//                return Color.parseColor("#537edc");
+//        }
+//    }
+//
+//    private void addPolyLine(PolylineOptions options) {
+//        if(options == null) {
+//            return;
+//        }
+//        Polyline polyline = aMap.addPolyline(options);
+//        if(polyline != null) {
+//            allPolyLines.add(polyline);
+//        }
+//    }
+//
+//    private void addThroughPointMarker() {
+//        if (this.throughPointList != null && this.throughPointList.size() > 0) {
+//            LatLonPoint latLonPoint;
+//            for (LatLonPoint lonPoint : this.throughPointList) {
+//                latLonPoint = lonPoint;
+//                if (latLonPoint != null) {
+//                    boolean throughPointMarkerVisible = true;
+//                    throughPointMarkerList.add(aMap
+//                            .addMarker((new MarkerOptions())
+//                                    .position(
+//                                            new LatLng(latLonPoint
+//                                                    .getLatitude(), latLonPoint
+//                                                    .getLongitude()))
+//                                    .visible(throughPointMarkerVisible)
+//                                    .icon(getThroughPointBitDes())
+//                                    .title("\u9014\u7ECF\u70B9")));
+//                }
+//            }
+//        }
+//    }
+//
+//    private BitmapDescriptor getThroughPointBitDes() {
+//        return BitmapDescriptorFactory.fromResource(R.mipmap.amap_through);
+//    }
+//
+//    private void addStartAndEndMarker() {
+//        startMarker = aMap.addMarker((new MarkerOptions())
+//                .position(startPoint).icon(getStartBitmapDescriptor())
+//                .title("\u8D77\u70B9"));
+//        endMarker = aMap.addMarker((new MarkerOptions()).position(endPoint)
+//                .icon(getEndBitmapDescriptor()).title("\u7EC8\u70B9"));
+//    }
+//
+//    /**
+//     * 给起点Marker设置图标，并返回更换图标的图片。如不用默认图片，需要重写此方法。
+//     * @return 更换的Marker图片。
+//     * @since V2.1.0
+//     */
+//    private BitmapDescriptor getStartBitmapDescriptor() {
+//        return BitmapDescriptorFactory.fromResource(R.mipmap.amap_start);
+//    }
+//    private BitmapDescriptor getEndBitmapDescriptor() {
+//        return BitmapDescriptorFactory.fromResource(R.mipmap.amap_end);
+//    }
+//    private BitmapDescriptor getDriveBitmapDescriptor() {
+//        return BitmapDescriptorFactory.fromResource(R.mipmap.amap_car);
+//    }
+//
+//    private void addDrivingStationMarkers(DriveStep driveStep, LatLng latLng) {
+//        addStationMarker(new MarkerOptions()
+//                .position(latLng)
+//                .title("\u65B9\u5411:" + driveStep.getAction()
+//                        + "\n\u9053\u8DEF:" + driveStep.getRoad())
+//                .snippet(driveStep.getInstruction()).visible(nodeIconVisible)
+//                .anchor(0.5f, 0.5f).icon(getDriveBitmapDescriptor()));
+//    }
+//
+//    private static LatLng convertToLatLng(LatLonPoint latLonPoint) {
+//        return new LatLng(latLonPoint.getLatitude(), latLonPoint.getLongitude());
+//    }
+//
+//    private void initPolylineOptions() {
+//        mPolylineOptions = null;
+//        mPolylineOptions = new PolylineOptions();
+//        mPolylineOptions.color(Color.parseColor("#537edc")).width(18f);
+//    }
+//
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        Log.i(TAG, "onActivityResult(Map)");
+//    }
+//
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        Log.i(TAG, "onStart(Map)");
+//    }
+//
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        Log.i(TAG, "onDestroy(Map)");
+//        if(smoothMarkerList.size() > 0) {
+//            for (MovingPointOverlay movingPointOverlay : smoothMarkerList) {
+//                if (movingPointOverlay != null) {
+//                    movingPointOverlay.setMoveListener(null);
+//                    movingPointOverlay.destroy();
+//                }
+//            }
+//        }
+//        mapView.onDestroy();
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        Log.i(TAG, "onPause(Map)");
+//        mapView.onPause();
+//    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        Log.i(TAG, "onResume(Map)");
+//        mapView.onResume();
+//    }
+//
+//    @Override
+//    protected void onRestart() {
+//        super.onRestart();
+//        Log.i(TAG, "onRestart(Map)");
+//    }
+//
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        mapView.onSaveInstanceState(outState);
+//    }
+//
 
     /**
      * 上传信息
@@ -1084,6 +1181,7 @@ public class MainActivity extends AppCompatActivity{
 
     private void setRiskValue(){
         HashMap<String, String> params = new HashMap<>(1);
+        params.put("token",mainApplication.getToken());
         params.put("PrisonerId",mainApplication.getPrisonerId());
         String url = "/prisonerData/get";
         String activityTag = "get criminal risk value from service" ;
@@ -1113,6 +1211,7 @@ public class MainActivity extends AppCompatActivity{
     private void setCriminalId(){
         HashMap<String, String> params = new HashMap<>(1);
 
+        params.put("token",mainApplication.getToken());
         params.put("userId", mainApplication.getUserId() );
         String url = "/task/getByUser";
 
@@ -1141,7 +1240,7 @@ public class MainActivity extends AppCompatActivity{
 
         Criminal criminalInfos = new Criminal();
         HashMap<String, String> params = new HashMap<>(1);
-
+        params.put("token",mainApplication.getToken());
         params.put("prisonerId",mainApplication.getPrisonerId());
         String url = "/prisoners/get";
         String activityTag = "get criminal information from service" ;
@@ -1197,6 +1296,8 @@ public class MainActivity extends AppCompatActivity{
         HashMap<String, String> params = new HashMap<>(1);
 
         params.put("userName",mainApplication.getUserName());
+
+        params.put("token",mainApplication.getToken());
         String url = "/task/deviceGetTasks";
         String activityTag = "get user task from service";
         OkHttpUtil.getInstance(getBaseContext()).requestAsyn(url, OkHttpUtil.TYPE_GET, params, new OkHttpUtil.ReqCallBack<String>() {
@@ -1230,17 +1331,21 @@ public class MainActivity extends AppCompatActivity{
 
     }
     private void setAnomalousEvents() {
+        final boolean[] flag = {true};
         ArrayList<Event> eventlist = new ArrayList<>();
         HashMap<String, String> params = new HashMap<>(1);
         params.put("prisonerId", mainApplication.getPrisonerId());
+        params.put("token",mainApplication.getToken());
         String url ="/exceptions/getException";
         String activityTag = "get anomalous event from service";
+
         OkHttpUtil.getInstance(getBaseContext()).requestAsyn(url, OkHttpUtil.TYPE_GET, params, new OkHttpUtil.ReqCallBack<String>() {
             @Override
             public void onReqSuccess(String result) {
                 String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
 
                 if(!result.isEmpty()){
+
                     Log.i(TAG,activityTag+ result + currentDateTimeString);
                     List<Event> list = JSON.parseArray(result, Event.class);
                     for (Event event_ : list) {
@@ -1254,7 +1359,11 @@ public class MainActivity extends AppCompatActivity{
                         eventlist.add(event_);
                     }
                     mainApplication.setEvents(eventlist);
+                    if(flag[0]){
+                        flag[0] =false;
+                        mainApplication.setOld_events(eventlist);
 
+                    }
                 }
             }
 
@@ -1268,6 +1377,7 @@ public class MainActivity extends AppCompatActivity{
 
 
     }
+
     /** //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
      *  天气 获取
      * @param longitude_ is

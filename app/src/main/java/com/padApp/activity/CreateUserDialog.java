@@ -16,7 +16,7 @@ public class CreateUserDialog extends Dialog {
 
     private Button btn_save;
     private Button btn_exit;
-
+    public TextView event_time;
     public EditText accident_des;
     public TextView state;
     public RadioGroup handle_states;

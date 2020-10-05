@@ -88,7 +88,7 @@ public class RiskChartView {
         multipleSeriesRenderer.setGridColor(Color.parseColor("#AEB0B9"));//显示网格颜色
 
         multipleSeriesRenderer.setMargins(new int[]{20,50,5,10}); //设置图形四周的留白 top-left-bottom-right
-        multipleSeriesRenderer.setMarginsColor(Color.parseColor("#6D0F2C83"));//边距背景色，默认背景色为黑色，这里修改为白色
+        multipleSeriesRenderer.setMarginsColor(Color.parseColor("#A62D476C"));//边距背景色，默认背景色为黑色
         multipleSeriesRenderer.setPointSize(1);//曲线描点尺寸 设置点的大小(图上显示的点的大小和图例中点的大小都会被设置)
         multipleSeriesRenderer.setPanEnabled(false,false);//禁止报表的拖动
         multipleSeriesRenderer.setZoomEnabled(false, false);//禁止报表xy轴缩放

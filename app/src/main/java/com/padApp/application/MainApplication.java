@@ -6,8 +6,9 @@ import android.content.SharedPreferences;
 import com.padApp.entityes.Criminal;
 import com.padApp.entityes.Event;
 import com.padApp.entityes.Task;
-
+import com.padApp.utils.MapString;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * @Author: jojo
@@ -29,10 +30,12 @@ public class MainApplication extends Application {
     private String prisonerInfo;
     private Criminal criminalInfo;
     ArrayList<Event> events_c;
+    private Map<String,String> tableRow;
     private Task task_;
     private String risk;
     private String respounse;
-
+    ArrayList<Event> old_events;
+    private boolean event_dialog_flag;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -47,6 +50,19 @@ public class MainApplication extends Application {
         }
     }
 
+    public  String getTableRow() {
+        return sharedPreferences.getString("table_row", null);
+    }
+
+
+    public void setTableRow(Map<String, String> tableRow) {
+
+        this.tableRow = tableRow;
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("table_row", MapString.getMapToString(tableRow));
+        editor.commit();
+    }
+
     public boolean isLogin() {
         return sharedPreferences.getBoolean("defaultLogin", false);
     }
@@ -55,6 +71,17 @@ public class MainApplication extends Application {
         isLogin = login;
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean("defaultLogin", login);
+        editor.commit();
+    }
+
+    public boolean isEvent_dialog_flag() {
+        return sharedPreferences.getBoolean("event_dialog_flag", true);
+    }
+
+    public void setEvent_dialog_flag(boolean flag) {
+        this.event_dialog_flag = flag;
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("event_dialog_flag", flag);
         editor.commit();
     }
 
@@ -69,6 +96,24 @@ public class MainApplication extends Application {
         editor.commit();
     }
 
+    public String getOld_events() {
+        return sharedPreferences.getString("old_events", null);
+    }
+
+    public void setOld_events(ArrayList<Event> old_events) {
+        this.old_events = old_events;
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putString("old_events",event2string(this.old_events));
+        editor.commit();
+    }
+    private String event2string(ArrayList<Event> eventl){
+        String events = "";
+        for(int i =0;i<eventl.size();i++){
+            events=events+"%"+eventl.get(i).toString()+"%";
+        }
+        return events;
+    }
     public void setUserName(String userName) {
         this.userName = userName;
         SharedPreferences.Editor editor = sharedPreferences.edit();

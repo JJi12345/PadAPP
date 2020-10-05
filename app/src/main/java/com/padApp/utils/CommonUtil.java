@@ -6,7 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.support.v4.view.ViewCompat;
+//import androidx.core.app.ViewCompat;ViewCompat
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;

@@ -2,7 +2,7 @@ package com.padApp.utils;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.padApp.R;

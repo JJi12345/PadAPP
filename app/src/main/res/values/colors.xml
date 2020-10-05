@@ -1,19 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#004085</color>
-    <color name="colorPrimaryDark">#002057</color>
-    <color name="colorAccent">#D81B60</color>
+<!--    <color name="colorPrimary">#004085</color>-->
+<!--    <color name="colorPrimaryDark">#002057</color>-->
+    <color name="colorAccent">#42212F</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorDarkRed">#A4AA0202</color>
     <color name="colorGary">#B7272727</color>
-    <color name="colorDarkBlue">#810F2C83</color>
+<!--    <color name="colorDarkBlue">#810F2C83</color>-->
+    <color name="transparent">#00FFFFFF</color>
+    <color name="color_pattle_bg">#B71E3C67</color>
+    <color name="color_pattle_bg1">#A62D476C</color>
+    <color name="color_bg_dark">#002057</color>
+    <color name="color_text_dark">#AEB0B9</color>
+    <color name="befor_title_dark">#DD556A93</color>
+    <color name="warning">#8F76467C</color>
+    <color name="dealed">#C14D757C</color>
+    <color name="wrongAlarm">#C14D757C</color>
 
-    <color name="colorDarkBlue1">#CE102A72</color>
+
+
     <color name="colorLightGary">#AEB0B9</color>
     <color name="colorTableLine">#606488</color>
     <color name="blue">#132A58</color>
     <color name="blue2">#0B1B35</color>
-    <color name="lightblue">#B43E78EC</color>
+
     <color name="red_value">#042269</color>
     <color name="orange_value">#065979</color>
     <color name="yellow_value">#4DB3B9</color>
